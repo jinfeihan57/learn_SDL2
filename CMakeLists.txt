@@ -1,0 +1,35 @@
+
+cmake_minimum_required(VERSION 3.16.3)
+project(hello_world)
+
+enable_testing()
+
+option(BUILD_DEBUG "Builds debug!!!" OFF)
+if(BUILD_DEBUG)
+    add_compile_options("-g")
+endif()
+
+set(HELLO_SDL_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set(HELLO_SDL_BIN_ROOT ${CMAKE_CURRENT_BINARY_DIR})
+
+add_executable(main ${CMAKE_CURRENT_SOURCE_DIR}/hello_SDL2.cpp)
+
+find_package(SDL2)
+if (${SDL2_FOUND})
+    message(STATUS ${SDL2_INCLUDE_DIRS})
+    message(STATUS ${SDL2_STATIC_LIBRARIES})
+    target_include_directories(main PUBLIC ${SDL2_INCLUDE_DIR})
+    target_link_libraries(main PUBLIC ${SDL2_STATIC_LIBRARIES})
+else()
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rd/SDL-release-2.28.3)
+    target_link_libraries(main PUBLIC SDL2::SDL2-static SDL2::SDL2main)
+endif()
+
+
+
+
+# 设置 编译测试选项
+option(BUILD_TEST "Builds test!!!" OFF)
+if(BUILD_TEST)
+    add_subdirectory(tests)
+endif()
