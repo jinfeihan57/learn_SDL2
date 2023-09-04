@@ -47,7 +47,11 @@ int main(int argc, char *argv[])
                 break;
         }
         /* do your job */
-        SDL_RenderCopy(render, texture, nullptr, nullptr);
+        SDL_Rect sRect{0, 0, 500, 500};
+        SDL_Rect s1Rect{500, 0, 500, 500};
+        SDL_RenderCopy(render, texture, &sRect, &sRect);
+        SDL_RenderCopy(render, texture, &sRect, &s1Rect);
+
         SDL_RenderPresent(render);
     }
 
