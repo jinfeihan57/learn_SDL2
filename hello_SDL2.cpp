@@ -17,8 +17,24 @@ int main(int argc, char *argv[])
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gWINDOW_WEIGHT, gWINDOW_HEIGHT, 0);
 
     // 睡眠 2s ，来保持窗口
-    std::chrono::milliseconds ms{2000};
-    std::this_thread::sleep_for(ms);
+    // std::chrono::milliseconds ms{2000};
+    // std::this_thread::sleep_for(ms);
+    bool quit = false;
+    SDL_Event event;
+    while (!quit) {
+        SDL_PollEvent(&event);
+        switch (event.type) {
+            case SDL_QUIT: {
+                    // std::cout << __LINE__ << std::endl;
+                    quit = true;
+                    break;
+                }
+
+            default:
+                break;
+        }
+        
+    }
 
     // 销毁 SDL 窗口
     SDL_DestroyWindow(screen);
