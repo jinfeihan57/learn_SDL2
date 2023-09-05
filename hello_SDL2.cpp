@@ -3,8 +3,6 @@
 #include <chrono>
 #include <thread>
 
-// using namespace std::literals::chrono_literals; std::this_thread::sleep_for(2000ms);
-
 constexpr int gWINDOW_WEIGHT = 1152;
 constexpr int gWINDOW_HEIGHT = 896;
 
@@ -32,9 +30,7 @@ int main(int argc, char *argv[])
     SDL_Texture *texture = SDL_CreateTextureFromSurface(render, surface);
     // 释放 surface
     SDL_FreeSurface(surface);
-    // 睡眠 2s ，来保持窗口
-    // std::chrono::milliseconds ms{2000};
-    // std::this_thread::sleep_for(ms);
+
     int tigerHeadx = 400;
     int tigerHeady = 200;
     bool quit = false;
@@ -44,28 +40,67 @@ int main(int argc, char *argv[])
         SDL_PollEvent(&event);
         switch (event.type) {
             case SDL_QUIT: {
-                    // std::cout << __LINE__ << std::endl;
-                    quit = true;
-                    break;
-                }
+                quit = true;
+                break;
+            }
             case SDL_KEYDOWN: {
-                    switch (event.key.keysym.sym)
-                        {
-                            case SDLK_LEFT:  tigerHeadx--; break;
-                            case SDLK_RIGHT: tigerHeadx++; break;
-                            case SDLK_UP:    tigerHeady--; break;
-                            case SDLK_DOWN:  tigerHeady++; break;
+                switch (event.key.keysym.sym)
+                    {
+                        case SDLK_LEFT:  tigerHeadx--; break;
+                        case SDLK_RIGHT: tigerHeadx++; break;
+                        case SDLK_UP:    tigerHeady--; break;
+                        case SDLK_DOWN:  tigerHeady++; break;
 
-                            case SDLK_a:  tigerHeadx--; break;
-                            case SDLK_d: tigerHeadx++; break;
-                            case SDLK_w:    tigerHeady--; break;
-                            case SDLK_s:  tigerHeady++; break;
-                        }
-                    break;
+                        case SDLK_a:  tigerHeadx--; break;
+                        case SDLK_d: tigerHeadx++; break;
+                        case SDLK_w:    tigerHeady--; break;
+                        case SDLK_s:  tigerHeady++; break;
+                    }
+                break;
+            }
+            case SDL_MOUSEMOTION: {
+                // 获取鼠标左边方法1
+                // tigerHeadx = event.motion.x;
+                // tigerHeady = event.motion.y;
+                // 获取鼠标左边方法2
+                SDL_GetMouseState(&tigerHeadx, &tigerHeady);
+                if (event.motion.state != 0) { // 按住鼠标拖动
+                    std::cout << __LINE__ << ": " << event.motion.state << std::endl;
+                }
+                break;
+            }
+            case SDL_MOUSEBUTTONDOWN: {
+                // if ((event.button.button == SDL_BUTTON_LEFT) && (event.button.clicks == 2)) { // 双击
+                //     std::cout << __LINE__ << std::endl;
+                //     tigerHeadx = event.motion.x;
+                //     tigerHeady = event.motion.y;
+                // }
+                // if (event.button.button == SDL_BUTTON_MIDDLE) {
+                //     std::cout << __LINE__ << std::endl;
+                //     tigerHeadx = event.motion.x;
+                //     tigerHeady = event.motion.y;
+                // }
+                // if (event.button.button == SDL_BUTTON_RIGHT) {
+                //     std::cout << __LINE__ << std::endl;
+                //     tigerHeadx = event.motion.x;
+                //     tigerHeady = event.motion.y;
+                // }
+                // if (event.button.button == SDL_BUTTON_X1) {
+                //     std::cout << __LINE__ << std::endl;
+                //     tigerHeadx = event.motion.x;
+                //     tigerHeady = event.motion.y;
+                // }
+                // if (event.button.button == SDL_BUTTON_X2) {
+                //     std::cout << __LINE__ << std::endl;
+                //     tigerHeadx = event.motion.x;
+                //     tigerHeady = event.motion.y;
+                // }
+                break;
             }
             default:
                 break;
         }
+
         /* do your job */
         SDL_Rect sRect{0, 0, imgW, imgH};
         SDL_Rect dRect{0, 0, renderW, renderH};
