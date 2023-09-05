@@ -17,13 +17,17 @@ int main(int argc, char *argv[])
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gWINDOW_WEIGHT, gWINDOW_HEIGHT, 0);
     // 创建 render
     SDL_Renderer *render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
-    
+    int renderW = 0;
+    int renderH = 0;
+    SDL_GetRendererOutputSize(render, &renderW, &renderH);
     // 加载一张图片
     SDL_Surface *surface = SDL_LoadBMP("./hello_SDL2.bmp");
     if (surface == nullptr) {
         std::cout << __PRETTY_FUNCTION__ << ": " << __LINE__ << std::endl;
         return -1;
     }
+    int imgW = surface->w;
+    int imgH = surface->h;
     // 由 surface 转换成 texture
     SDL_Texture *texture = SDL_CreateTextureFromSurface(render, surface);
     // 释放 surface
@@ -47,10 +51,11 @@ int main(int argc, char *argv[])
                 break;
         }
         /* do your job */
-        SDL_Rect sRect{0, 0, 500, 500};
-        SDL_Rect s1Rect{500, 0, 500, 500};
-        SDL_RenderCopy(render, texture, &sRect, &sRect);
-        SDL_RenderCopy(render, texture, &sRect, &s1Rect);
+        SDL_Rect sRect{0, 0, imgW, imgH};
+        SDL_Rect dRect{0, 0, renderW, renderH};
+        SDL_RenderCopy(render, texture, &sRect, &dRect);
+        SDL_Rect d1Rect{300, 200, 500, 500};
+        SDL_RenderCopy(render, texture, &sRect, &d1Rect);
 
         SDL_RenderPresent(render);
     }
