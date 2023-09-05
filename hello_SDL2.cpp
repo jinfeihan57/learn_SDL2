@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
     // 睡眠 2s ，来保持窗口
     // std::chrono::milliseconds ms{2000};
     // std::this_thread::sleep_for(ms);
+    int tigerHeadx = 400;
+    int tigerHeady = 200;
     bool quit = false;
     SDL_Event event;
     while (!quit) {
@@ -46,7 +48,21 @@ int main(int argc, char *argv[])
                     quit = true;
                     break;
                 }
+            case SDL_KEYDOWN: {
+                    switch (event.key.keysym.sym)
+                        {
+                            case SDLK_LEFT:  tigerHeadx--; break;
+                            case SDLK_RIGHT: tigerHeadx++; break;
+                            case SDLK_UP:    tigerHeady--; break;
+                            case SDLK_DOWN:  tigerHeady++; break;
 
+                            case SDLK_a:  tigerHeadx--; break;
+                            case SDLK_d: tigerHeadx++; break;
+                            case SDLK_w:    tigerHeady--; break;
+                            case SDLK_s:  tigerHeady++; break;
+                        }
+                    break;
+            }
             default:
                 break;
         }
@@ -54,8 +70,10 @@ int main(int argc, char *argv[])
         SDL_Rect sRect{0, 0, imgW, imgH};
         SDL_Rect dRect{0, 0, renderW, renderH};
         SDL_RenderCopy(render, texture, &sRect, &dRect);
-        SDL_Rect d1Rect{300, 200, 500, 500};
-        SDL_RenderCopy(render, texture, &sRect, &d1Rect);
+
+        SDL_Rect d1Rect{tigerHeadx, tigerHeady, 400, 500};
+        SDL_Rect s1Rect{300, 50, 400, 500};
+        SDL_RenderCopy(render, texture, &s1Rect, &d1Rect);
 
         SDL_RenderPresent(render);
     }
