@@ -107,10 +107,11 @@ int main(int argc, char *argv[])
         }
 
         /* do your job */
+        SDL_RenderClear(render);
         SDL_Rect sRect{0, 0, imgW, imgH};
         SDL_Rect dRect{0, 0, renderW, renderH};
-        SDL_RenderCopy(render, texture, &sRect, &dRect);
-
+        // SDL_RenderCopy(render, texture, &sRect, &dRect);
+        SDL_SetRenderDrawColor(render, 135, 206, 235, 0xFF );
         SDL_Rect d1Rect{tigerHeadx, tigerHeady, 400, 500};
         SDL_Rect s1Rect{300, 50, 400, 500};
         SDL_RenderCopy(render, texture, &s1Rect, &d1Rect);
