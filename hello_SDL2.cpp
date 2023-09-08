@@ -3,8 +3,6 @@
 #include <chrono>
 #include <thread>
 
-// using namespace std::literals::chrono_literals; std::this_thread::sleep_for(2000ms);
-
 constexpr int gWINDOW_WEIGHT = 1152;
 constexpr int gWINDOW_HEIGHT = 896;
 
@@ -32,9 +30,7 @@ int main(int argc, char *argv[])
     SDL_Texture *texture = SDL_CreateTextureFromSurface(render, surface);
     // 释放 surface
     SDL_FreeSurface(surface);
-    // 睡眠 2s ，来保持窗口
-    // std::chrono::milliseconds ms{2000};
-    // std::this_thread::sleep_for(ms);
+
     int tigerHeadx = 400;
     int tigerHeady = 200;
     bool quit = false;
@@ -49,17 +45,23 @@ int main(int argc, char *argv[])
                     break;
                 }
             case SDL_KEYDOWN: {
-                    switch (event.key.keysym.sym)
-                        {
-                            case SDLK_LEFT:  tigerHeadx--; break;
-                            case SDLK_RIGHT: tigerHeadx++; break;
-                            case SDLK_UP:    tigerHeady--; break;
-                            case SDLK_DOWN:  tigerHeady++; break;
+                    SDL_Keymod keyMod = SDL_GetModState();
+                    switch (event.key.keysym.sym) {
+                            // case SDLK_LEFT:  tigerHeadx--; break;
+                            // case SDLK_RIGHT: tigerHeadx++; break;
+                            // case SDLK_UP:    tigerHeady--; break;
+                            // case SDLK_DOWN:  tigerHeady++; break;
 
-                            case SDLK_a:  tigerHeadx--; break;
+                            case SDLK_a:
+                                if (keyMod & KMOD_CAPS) {
+                                    tigerHeadx--;
+                                }
+                                break;
                             case SDLK_d: tigerHeadx++; break;
-                            case SDLK_w:    tigerHeady--; break;
-                            case SDLK_s:  tigerHeady++; break;
+                            case SDLK_w: tigerHeady--; break;
+                            case SDLK_s: tigerHeady++; break;
+                            default:
+                                break;
                         }
                     break;
             }
