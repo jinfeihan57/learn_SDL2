@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
     // 释放 surface
     SDL_FreeSurface(surface);
 
+    Uint8 alph = 127;
     int tigerHeadx = 400;
     int tigerHeady = 200;
     bool quit = false;
@@ -46,10 +47,13 @@ int main(int argc, char *argv[])
             case SDL_KEYDOWN: {
                 switch (event.key.keysym.sym)
                     {
-                        case SDLK_a: tigerHeadx--; break;
-                        case SDLK_d: tigerHeadx++; break;
-                        case SDLK_w: tigerHeady--; break;
-                        case SDLK_s: tigerHeady++; break;
+                        case SDLK_LEFT:  tigerHeadx--; break;
+                        case SDLK_RIGHT: tigerHeadx++; break;
+                        case SDLK_UP:    tigerHeady--; break;
+                        case SDLK_DOWN:  tigerHeady++; break;
+
+                        default:
+                            break;
                     }
                 break;
             }
@@ -72,6 +76,7 @@ int main(int argc, char *argv[])
         SDL_SetRenderDrawColor(render, 255, 0, 0, 0xFF );
         SDL_RenderDrawLine(render, 0, 0, 500, 400);
         // SDL_RenderSetScale(render, 1, 2);
+
         // 显示
         SDL_RenderPresent(render);
     }
