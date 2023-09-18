@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <chrono>
 #include <thread>
+#include <string>
 
 constexpr int gWINDOW_WEIGHT = 1152;
 constexpr int gWINDOW_HEIGHT = 896;
@@ -16,6 +17,17 @@ int main(int argc, char *argv[])
     // 创建一个 SDL 窗口
     SDL_Window *screen = SDL_CreateWindow("Hello SDL",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gWINDOW_WEIGHT, gWINDOW_HEIGHT, 0);
+    
+    // 加载一张图片
+    SDL_Surface *surfaceIcon = SDL_LoadBMP("./hello_SDL2.bmp");
+    if (surfaceIcon == nullptr) {
+        std::cout << __PRETTY_FUNCTION__ << ": " << __LINE__ << std::endl;
+        return -1;
+    }
+    // 设置应用图标
+    SDL_SetWindowIcon(screen, surfaceIcon);
+    // 释放 surfaceIcon
+    SDL_FreeSurface(surfaceIcon);
     // 创建 render
     SDL_Renderer *render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);  // SDL_RENDERER_PRESENTVSYNC
     int renderW = 0;
@@ -41,7 +53,7 @@ int main(int argc, char *argv[])
     SDL_Event event;
     while (!quit) {
         std::chrono::time_point start = std::chrono::high_resolution_clock::now();
-        // Uint32 startMs = SDL_GetTicks();
+        Uint32 startMs = SDL_GetTicks();
         /* deal with event */
         SDL_PollEvent(&event);
         switch (event.type) {
@@ -83,13 +95,16 @@ int main(int argc, char *argv[])
 
         // 显示
         SDL_RenderPresent(render);
-        
-        // Uint32 endMs = SDL_GetTicks();
-        // Uint32 consumeTime = endMs - startMs;
-        // SDL_Delay(consumeTime >= gFPS_TIME ? 0 : (gFPS_TIME - consumeTime)); // 调整帧率
+
+        Uint32 endMs = SDL_GetTicks();
+        Uint32 consumeTime = endMs - startMs;
+        SDL_Delay(consumeTime >= gFPS_TIME ? 0 : (gFPS_TIME - consumeTime)); // 调整帧率
 
         std::chrono::time_point end = std::chrono::high_resolution_clock::now();
-        std::cout << "FPS:" << std::chrono::seconds(1) / (end - start) << std::endl;
+        int fps = std::chrono::seconds(1) / (end - start);
+        std::cout << "FPS:" << fps << std::endl;
+        // 修改应用标题
+        SDL_SetWindowTitle(screen, (std::string("fps: ") + std::to_string(fps)).c_str());
     }
 
     // 销毁 texture
@@ -101,5 +116,5 @@ int main(int argc, char *argv[])
     // SDL 退出
     SDL_Quit();
 
-	return 0;
+    return 0;
 }
