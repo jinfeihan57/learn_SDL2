@@ -9,6 +9,12 @@ if(BUILD_DEBUG)
     add_compile_options("-g")
 endif()
 
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(CMAKE_CXX_FLAGS "-mwindows")
+else()
+    message(STATUS "OS: "${CMAKE_SYSTEM_NAME})
+endif(CMAKE_SYSTEM_NAME MATCHES "Windows")
+
 set(HELLO_SDL_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(HELLO_SDL_BIN_ROOT ${CMAKE_CURRENT_BINARY_DIR})
 
