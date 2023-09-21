@@ -88,14 +88,36 @@ int main(int argc, char *argv[])
         // 清屏
         SDL_SetRenderDrawColor(render, 135, 206, 235, 0xFF );
         SDL_RenderClear(render);
+        // 绘制
 
-        SDL_Rect d1Rect{tigerHeadx, tigerHeady, 400, 500};
-        SDL_Rect s1Rect{300, 50, 400, 500};
-        SDL_RenderCopy(render, texture, &s1Rect, &d1Rect);
+        SDL_SetRenderDrawColor(render, 255, 0, 0, 0xFF);
+        SDL_RenderDrawLine(render, 0, 0, 500, 500);
+
+        // SDL_Point points[] = {{500, 500}, {200, 300}, {300, 300}, {400, 200}, {500, 500}};
+        // SDL_RenderDrawLines(render, points, sizeof(points) / sizeof(SDL_Point));
+
+        // SDL_SetRenderDrawColor(render, 0, 0, 255, 0xFF);
+        // SDL_Rect aRect{200, 200, 50, 70};
+        // SDL_RenderDrawRect(render, &aRect);
+
+        // SDL_SetRenderDrawColor(render, 0, 0, 255, 0xFF);
+        // SDL_Rect rects[] = {{400, 300, 100, 200}, {401, 301, 98, 198}, {402, 302, 96, 196},
+        //                     {403, 303, 94, 194}, {404, 304, 92, 192}};
+        // SDL_RenderDrawRects(render, rects, sizeof(rects) / sizeof(SDL_Rect));
+
+        // SDL_SetRenderDrawColor(render, 127, 0, 255, 0xFF);
+        // SDL_Rect bRect{300, 200, 50, 70};
+        // SDL_RenderFillRect(render, &bRect);
+
+        // SDL_SetRenderDrawColor(render, 255, 0, 0, 0xFF);
+        // for(int i = 500; i < 550; i++) {
+        //     SDL_RenderDrawPoint(render, i, i+1);  // SDL_RenderDrawPoints
+        // }
 
         // 显示
         SDL_RenderPresent(render);
 
+        // 调整帧率
         Uint32 endMs = SDL_GetTicks();
         Uint32 consumeTime = endMs - startMs;
         SDL_Delay(consumeTime >= gFPS_TIME ? 0 : (gFPS_TIME - consumeTime)); // 调整帧率
