@@ -3,6 +3,7 @@
 #include <chrono>
 #include <thread>
 #include <string>
+#include "SDL_image.h"
 
 constexpr int gWINDOW_WEIGHT = 1152;
 constexpr int gWINDOW_HEIGHT = 896;
