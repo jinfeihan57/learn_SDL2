@@ -22,4 +22,6 @@ draw_function
 
 SDL_IMG
 
+SDL_IMG_texture
+
 SDL_Animation
