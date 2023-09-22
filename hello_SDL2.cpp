@@ -14,6 +14,11 @@ constexpr Uint32 gFPS_TIME = 1000 / gFPS;
 int main(int argc, char *argv[])
 {
     int ret = 0;
+    
+    if ( ! argv[1] ) {
+        std::cout << "Usage: ./main.exe (*.png | *.jpg)" << std::endl;
+        return -1;
+    }
     // 初始化SDL
     ret = SDL_Init(SDL_INIT_VIDEO);
     if (ret != 0) {
@@ -53,21 +58,14 @@ int main(int argc, char *argv[])
     // 加载 texture
     int imgW = 0;
     int imgH = 0;
-    SDL_Surface *surface = IMG_Load("./adventurer-sheet.png");
-    if (surface == nullptr) {
-        std::cout << __PRETTY_FUNCTION__ << ": " << __LINE__ << std::endl;
-        return -1;
-    }
-    imgW = surface->w;
-    imgH = surface->h;
-    // 由 surface 转换成 texture
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(render, surface);
+    SDL_Texture *texture = IMG_LoadTexture(render, argv[1]);
     if (texture == nullptr) {
         std::cout << __PRETTY_FUNCTION__ << ": " << __LINE__ << std::endl;
         return -1;
     }
-    // 释放 surface
-    SDL_FreeSurface(surface);
+    Uint32 format;
+    int access;
+    SDL_QueryTexture(texture, &format, &access, &imgW, &imgH);
 
     int tigerHeadx = 400;
     int tigerHeady = 200;
