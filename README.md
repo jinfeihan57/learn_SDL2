@@ -24,4 +24,6 @@ SDL_IMG
 
 SDL_IMG_texture
 
-SDL_Animation
+SDL_Animation_gif
+
+SDL_Animation_sprite
