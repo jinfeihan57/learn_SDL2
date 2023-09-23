@@ -14,6 +14,10 @@ constexpr Uint32 gFPS_TIME = 1000 / gFPS;
 int main(int argc, char *argv[])
 {
     int ret = 0;
+    if ( ! argv[1] ) {
+        std::cout << "Usage: ./main.exe *.gif" << std::endl;
+        return -1;
+    }
     // 初始化SDL
     ret = SDL_Init(SDL_INIT_VIDEO);
     if (ret != 0) {
@@ -50,22 +54,33 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    // 加载 texture
+    // 加载 gif 动图
     int imgW = 0;
     int imgH = 0;
-    SDL_Texture *texture = IMG_LoadTexture(render, "./adventurer-sheet.png");
-    if (texture == nullptr) {
-        std::cout << __PRETTY_FUNCTION__ << ": " << __LINE__ << std::endl;
+    IMG_Animation *animation = IMG_LoadAnimation(argv[1]);
+    std::cout << __LINE__ << animation->count << std::endl;
+    std::cout << __LINE__ << animation->delays[0] << std::endl;
+    std::cout << __LINE__ << animation->w << std::endl;
+    std::cout << __LINE__ << animation->h << std::endl;
+    imgW = animation->w;
+    imgH = animation->h;
+    // surface -> texture
+    SDL_Texture **textures = (SDL_Texture **)SDL_calloc(animation->count * sizeof(SDL_Texture*));
+    if (!textures) {
+        SDL_Log("Couldn't allocate textures\n");
+        IMG_FreeAnimation(animation);
         return -1;
     }
-    Uint32 format;
-    int access;
-    SDL_QueryTexture(texture, &format, &access, &imgW, &imgH);
+    for (int j = 0; j < animation->count; ++j) {
+        textures[j] = SDL_CreateTextureFromSurface(render, animation->frames[j]);
+    }
 
     int tigerHeadx = 400;
     int tigerHeady = 200;
     bool quit = false;
     SDL_Event event;
+    int times = 0;
+    int count = 0;
     while (!quit) {
         std::chrono::time_point start = std::chrono::high_resolution_clock::now();
         Uint32 startMs = SDL_GetTicks();
@@ -79,10 +94,10 @@ int main(int argc, char *argv[])
             case SDL_KEYDOWN: {
                 switch (event.key.keysym.sym)
                     {
-                        case SDLK_LEFT:  tigerHeadx--; break;
-                        case SDLK_RIGHT: tigerHeadx++; break;
-                        case SDLK_UP:    tigerHeady--; break;
-                        case SDLK_DOWN:  tigerHeady++; break;
+                        case SDLK_LEFT:  tigerHeadx-=15; break;
+                        case SDLK_RIGHT: tigerHeadx+=15; break;
+                        case SDLK_UP:    tigerHeady-=15; break;
+                        case SDLK_DOWN:  tigerHeady+=15; break;
 
                         default:
                             break;
@@ -104,8 +119,15 @@ int main(int argc, char *argv[])
         SDL_SetRenderDrawColor(render, 135, 206, 0, 0xFF );
         SDL_RenderClear(render);
         // 绘制
-        SDL_Rect dRect = {tigerHeadx, tigerHeady, imgW, imgH};
-        SDL_RenderCopy(render, texture, nullptr, &dRect);
+        SDL_Rect dRect{tigerHeadx, tigerHeady, imgW, imgH};
+        times++;
+        if ((times % 4) == 0) {
+            count++;
+            if(count >= animation->count){
+                count = 0;
+            }
+        }
+        SDL_RenderCopy(render, textures[count], nullptr, &dRect);
         // 显示
         SDL_RenderPresent(render);
 
@@ -120,8 +142,13 @@ int main(int argc, char *argv[])
         SDL_SetWindowTitle(screen, (std::string("fps: ") + std::to_string(fps)).c_str());
     }
 
-    // 销毁 texture
-    SDL_DestroyTexture(texture);
+    // 销毁 textures animation
+    for (int j = 0; j < animation->count; ++j) {
+            SDL_DestroyTexture(textures[j]);
+    }
+    IMG_FreeAnimation(animation);
+    SDL_free(textures);
+    
     // 销毁 render
     SDL_DestroyRenderer(render);
     // 销毁 SDL 窗口
