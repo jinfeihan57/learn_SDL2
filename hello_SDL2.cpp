@@ -74,13 +74,16 @@ int main(int argc, char *argv[])
     for (int j = 0; j < animation->count; ++j) {
         textures[j] = SDL_CreateTextureFromSurface(render, animation->frames[j]);
     }
+    SDL_Texture *textureTMP = nullptr;
+    int animationIndex = 0;
+    int currentTime = SDL_GetTicks();
+    int animationFrameChangeTime = currentTime + animation->delays[animationIndex];
+    textureTMP = textures[animationIndex];
 
     int tigerHeadx = 400;
     int tigerHeady = 200;
     bool quit = false;
     SDL_Event event;
-    int times = 0;
-    int count = 0;
     while (!quit) {
         std::chrono::time_point start = std::chrono::high_resolution_clock::now();
         Uint32 startMs = SDL_GetTicks();
@@ -116,18 +119,21 @@ int main(int argc, char *argv[])
         }
         /* do your job */
         // 清屏
-        SDL_SetRenderDrawColor(render, 135, 206, 0, 0xFF );
+        SDL_SetRenderDrawColor(render, 50, 50, 50, 0xFF );
         SDL_RenderClear(render);
         // 绘制
         SDL_Rect dRect{tigerHeadx, tigerHeady, imgW, imgH};
-        times++;
-        if ((times % 3) == 0) {
-            count++;
-            if(count >= animation->count){
-                count = 0;
+
+        currentTime = SDL_GetTicks();
+        if (currentTime > animationFrameChangeTime) {
+            textureTMP = textures[animationIndex];
+            animationIndex++;
+            if(animationIndex >= animation->count){
+                animationIndex = 0;
             }
+            animationFrameChangeTime = currentTime + animation->delays[animationIndex];
         }
-        SDL_RenderCopy(render, textures[count], nullptr, &dRect);
+        SDL_RenderCopy(render, textureTMP, nullptr, &dRect);
         // 显示
         SDL_RenderPresent(render);
 
