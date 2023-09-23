@@ -119,18 +119,18 @@ int main(int argc, char *argv[])
         }
         /* do your job */
         // 清屏
-        SDL_SetRenderDrawColor(render, 50, 50, 50, 0xFF );
+        SDL_SetRenderDrawColor(render, 50, 50, 70, 0xFF );
         SDL_RenderClear(render);
         // 绘制
         SDL_Rect dRect{tigerHeadx, tigerHeady, imgW, imgH};
 
         currentTime = SDL_GetTicks();
         if (currentTime > animationFrameChangeTime) {
-            textureTMP = textures[animationIndex];
             animationIndex++;
-            if(animationIndex >= animation->count){
+            if(animationIndex >= animation->count) {
                 animationIndex = 0;
             }
+            textureTMP = textures[animationIndex];
             animationFrameChangeTime = currentTime + animation->delays[animationIndex];
         }
         SDL_RenderCopy(render, textureTMP, nullptr, &dRect);
