@@ -23,7 +23,7 @@ add_executable(main ${CMAKE_CURRENT_SOURCE_DIR}/hello_SDL2.cpp)
 find_package(SDL2)
 find_package(SDL2_image)
 find_package(SDL2_ttf)
-if (${SDL2_FOUND} AND ${SDL2_image_FOUND})
+if (${SDL2_FOUND} AND ${SDL2_image_FOUND} AND ${SDL2_ttf_FOUND})
 # TODO SDL2_image find
     message(STATUS ${SDL2_INCLUDE_DIRS})
     message(STATUS ${SDL2_STATIC_LIBRARIES})
