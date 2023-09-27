@@ -12,7 +12,11 @@ constexpr int gWINDOW_HEIGHT = 896;
 
 constexpr int gFPS = 60;
 constexpr Uint32 gFPS_TIME = 1000 / gFPS;
+
 constexpr int gDEFAULT_PTSIZE = 70;
+const std::string gSTRING = {"中文演示"};  // UTF8 编码
+// const std::wstring  gUNICODESTRING = {L"中文演示"};  // utf16 编码
+
 int main(int argc, char *argv[])
 {
     int ret = 0;
@@ -77,11 +81,11 @@ int main(int argc, char *argv[])
     SDL_Color backcol = {0xff, 0xff, 0xff, 0xff};
     // SDL_Log("Hello SDL! TTF_SetFontSize: %d\n", TTF_SetFontSize(font, 200)); // 在TTF_Render* 字符之前设置才生效，或者每次修改ptsize都重新执行 TTF_Render*
     // TTF_SetFontStyle(font, TTF_STYLE_BOLD | TTF_STYLE_ITALIC | TTF_STYLE_UNDERLINE | TTF_STYLE_STRIKETHROUGH);
-    SDL_Surface *surface = TTF_RenderText_Solid(font, "Hello SDL!", forecol);
-    // SDL_Surface *surface = TTF_RenderText_Shaded(font, "Hello SDL!", forecol, backcol);
-    // SDL_Surface *surface = TTF_RenderText_Blended(font, "Hello SDL!", forecol);
-    // SDL_Surface *surface = TTF_RenderText_LCD(font, "Hello SDL!", forecol, backcol);
-    // SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(font, "Hello SDL!", forecol, 100);
+    SDL_Surface *surface = TTF_RenderUTF8_Solid(font, gSTRING.c_str(), forecol);
+    // SDL_Surface *surface = TTF_RenderUTF8_Shaded(font, gSTRING.c_str(), forecol, backcol);
+    // SDL_Surface *surface = TTF_RenderUTF8_Blended(font, gSTRING.c_str(), forecol);
+    // SDL_Surface *surface = TTF_RenderUTF8_LCD(font, gSTRING.c_str(), forecol, backcol);
+    // SDL_Surface *surface = TTF_RenderUTF8_Blended_Wrapped(font, gSTRING.c_str(), forecol, 100);
     if (surface == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't TTF_Render***: %s\n",SDL_GetError());
         TTF_CloseFont(font);
