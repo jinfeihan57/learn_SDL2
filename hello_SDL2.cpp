@@ -105,6 +105,7 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return -1;
     }
+
     int tigerHeadx = 400;
     int tigerHeady = 200;
     int helloWidth = surface->w;
