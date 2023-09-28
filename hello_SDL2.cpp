@@ -108,10 +108,15 @@ int main(int argc, char *argv[])
     }
     int tigerHeadx = 0;
     int tigerHeady = 0;
-    int helloWidth = surface->w;
-    int helloHigh = surface->h;
-    SDL_Rect helloRect = {tigerHeadx, tigerHeady, helloWidth, helloHigh};
+    int zhongWidth = surface->w;
+    int zhongHigh = surface->h;
+    SDL_Rect helloRect = {tigerHeadx, tigerHeady, zhongWidth, zhongHigh};
     SDL_FreeSurface(surface);
+
+    int partTextureW = 200;   
+    int partTextureH = 300;  
+    SDL_Texture *partTexture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, 
+                                                 SDL_TEXTUREACCESS_TARGET, partTextureW, partTextureH);
 
     int keyboardEvent = 0;
     bool quit = false;
@@ -134,16 +139,16 @@ int main(int argc, char *argv[])
             tigerHeady -= 3;
         }
         if (keyStatus[SDL_SCANCODE_W] == SDL_PRESSED) {
-            helloHigh += 3;
+            zhongHigh += 3;
         }
         if (keyStatus[SDL_SCANCODE_S] == SDL_PRESSED) {
-            helloHigh -= 3;
+            zhongHigh -= 3;
         }
         if (keyStatus[SDL_SCANCODE_A] == SDL_PRESSED) {
-            helloWidth -= 3;
+            zhongWidth -= 3;
         }
         if (keyStatus[SDL_SCANCODE_D] == SDL_PRESSED) {
-            helloWidth += 3;
+            zhongWidth += 3;
         }
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -155,12 +160,23 @@ int main(int argc, char *argv[])
         SDL_SetRenderDrawColor(render, 65, 167, 225, 0xFF );
         SDL_RenderClear(render);
         // 绘制
+        // 在特定的texture上渲染
+        SDL_SetRenderTarget(render, partTexture);    // 渲染到指定texture，下面的操作都会转为对texture的操作
+        SDL_SetRenderDrawColor(render, 65, 100, 225, 0xFF ); // A 设置为0完全透明背景 则 RGB 无效 
+        SDL_RenderClear(render);
+        // 绘画 点/线/面，copy texture 等
+        SDL_Rect partZhongRect = {20, 20, zhongWidth, zhongHigh};
+        SDL_Point zhongPoint = {0, 0};
+        SDL_RenderCopyEx(render, texture, nullptr, &partZhongRect, 0, &zhongPoint, SDL_FLIP_NONE);
+        SDL_SetRenderTarget(render, NULL);    // 切回，渲染到窗口
+
         helloRect.x = tigerHeadx;
         helloRect.y = tigerHeady;
-        helloRect.w = helloWidth;
-        helloRect.h = helloHigh;
+        helloRect.w = partTextureW;
+        helloRect.h = partTextureH;
         SDL_Point point = {0, 0};
-        SDL_RenderCopyEx(render, texture, nullptr, &helloRect, 30, &point, SDL_FLIP_NONE);
+        // 将已经渲染好的texture，渲染到窗口
+        SDL_RenderCopyEx(render, partTexture, nullptr, &helloRect, 0, &point, SDL_FLIP_NONE);
 
         // 显示
         SDL_RenderPresent(render);
@@ -177,6 +193,7 @@ int main(int argc, char *argv[])
     }
 
     // 销毁 texture
+    SDL_DestroyTexture(partTexture);
     SDL_DestroyTexture(texture);
     // 关闭 font
     TTF_CloseFont(font);
