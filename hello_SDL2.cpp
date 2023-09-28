@@ -15,8 +15,7 @@ constexpr Uint32 gFPS_TIME = 1000 / gFPS;
 
 constexpr int gDEFAULT_PTSIZE = 70;
 const std::string gSTRING = {"UTF8: 中文演示"};  // UTF8 编码
-const Uint16 gUNICODESTR[] = {0x0055, 0x0043, 0x0053, 0x0032, 0x003A, 0x0020, 0x4E2D, 0x6587, 0x6F14, 0x793A, 0x0000}; // unicode 2 byte "UCS2: 中文演示"
-
+const Uint16 gUNICODEChr = 0x4E2D;
 int main(int argc, char *argv[])
 {
     int ret = 0;
@@ -80,14 +79,10 @@ int main(int argc, char *argv[])
     SDL_Color backcol = {0xff, 0xff, 0xff, 0xff};
     // SDL_Log("Hello SDL! TTF_SetFontSize: %d\n", TTF_SetFontSize(font, 200)); // 在TTF_Render* 字符之前设置才生效，或者每次修改ptsize都重新执行 TTF_Render*
     // TTF_SetFontStyle(font, TTF_STYLE_BOLD | TTF_STYLE_ITALIC | TTF_STYLE_UNDERLINE | TTF_STYLE_STRIKETHROUGH);
-    Uint16 *unicode2 = SDL_iconv_utf8_ucs2(gSTRING.c_str());
-    SDL_Surface *surface = TTF_RenderUNICODE_Solid(font, gUNICODESTR, forecol);
-    // SDL_Surface *surface = TTF_RenderUNICODE_Shaded(font, unicode2, forecol, backcol);
-    // SDL_Surface *surface = TTF_RenderUNICODE_Blended(font, unicode2, forecol);
-    // SDL_Surface *surface = TTF_RenderUNICODE_LCD(font, unicode2, forecol, backcol);
-    // SDL_Surface *surface = TTF_RenderUNICODE_Blended_Wrapped(font, unicode2, forecol, 100);
-    // SDL_Surface *surface = TTF_RenderUNICODE_Shaded();
-    // SDL_Surface *surface = TTF_RenderGlyph_Solid(font, 0x6041, forecol);
+    SDL_Surface *surface = TTF_RenderGlyph_Solid(font, gUNICODEChr, forecol);
+    // SDL_Surface *surface = TTF_RenderGlyph_Shaded(font, gUNICODEChr, forecol, backcol);
+    // SDL_Surface *surface = TTF_RenderGlyph_Blended(font, gUNICODEChr, forecol);
+    // SDL_Surface *surface = TTF_RenderGlyph_LCD(font, gUNICODEChr, forecol, backcol);
     if (surface == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't TTF_Render***: %s\n",SDL_GetError());
         TTF_CloseFont(font);
@@ -111,13 +106,12 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return -1;
     }
-    int tigerHeadx = 400;
-    int tigerHeady = 200;
+    int tigerHeadx = 0;
+    int tigerHeady = 0;
     int helloWidth = surface->w;
     int helloHigh = surface->h;
     SDL_Rect helloRect = {tigerHeadx, tigerHeady, helloWidth, helloHigh};
     SDL_FreeSurface(surface);
-    SDL_free(unicode2);
 
     int keyboardEvent = 0;
     bool quit = false;
@@ -165,7 +159,8 @@ int main(int argc, char *argv[])
         helloRect.y = tigerHeady;
         helloRect.w = helloWidth;
         helloRect.h = helloHigh;
-        SDL_RenderCopy(render, texture, nullptr, &helloRect);
+        SDL_Point point = {0, 0};
+        SDL_RenderCopyEx(render, texture, nullptr, &helloRect, 30, &point, SDL_FLIP_NONE);
 
         // 显示
         SDL_RenderPresent(render);
