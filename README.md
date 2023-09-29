@@ -17,9 +17,9 @@ clear_render
 
 fps_ctrl
 
-hide_terminal
-
 set_icon
+
+hide_terminal
 
 ## SDL绘画
 draw_function
