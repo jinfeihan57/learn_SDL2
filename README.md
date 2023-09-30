@@ -27,6 +27,8 @@ draw_function
 ## 图片显示
 SDL_IMG
 
+SDL_IMG_webp
+
 SDL_IMG_texture
 
 SDL_Animation_gif
