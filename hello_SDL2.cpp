@@ -15,7 +15,7 @@ constexpr Uint32 gFPS_TIME = 1000 / gFPS;
 
 constexpr int gDEFAULT_PTSIZE = 70;
 const std::string gSTRING = {"UTF8: 中文演示"};  // UTF8 编码
-const Uint16 gUNICODEChr = 0x4E2D;
+
 int main(int argc, char *argv[])
 {
     int ret = 0;
@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return(2);
     }
+    SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1"); // 显示输入法UI
     // 创建一个 SDL 窗口
     SDL_Window *screen = SDL_CreateWindow("Hello SDL",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gWINDOW_WEIGHT, gWINDOW_HEIGHT, 0);
@@ -43,6 +44,7 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return -1;
     }
+
     // 加载一张图片
     SDL_Surface *surfaceIcon = SDL_LoadBMP("./hello_SDL2.bmp");
     if (surfaceIcon == nullptr) {
@@ -56,6 +58,7 @@ int main(int argc, char *argv[])
     SDL_SetWindowIcon(screen, surfaceIcon);
     // 释放 surfaceIcon
     SDL_FreeSurface(surfaceIcon);
+
     // 创建 render
     SDL_Renderer *render = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
     if (render == nullptr) {
@@ -75,14 +78,12 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return -1;
     }
+    std::string displayText = gSTRING;
     SDL_Color forecol = {0, 0, 0, 0xff};
     SDL_Color backcol = {0xff, 0xff, 0xff, 0xff};
     // SDL_Log("Hello SDL! TTF_SetFontSize: %d\n", TTF_SetFontSize(font, 200)); // 在TTF_Render* 字符之前设置才生效，或者每次修改ptsize都重新执行 TTF_Render*
     // TTF_SetFontStyle(font, TTF_STYLE_BOLD | TTF_STYLE_ITALIC | TTF_STYLE_UNDERLINE | TTF_STYLE_STRIKETHROUGH);
-    SDL_Surface *surface = TTF_RenderGlyph_Solid(font, gUNICODEChr, forecol);
-    // SDL_Surface *surface = TTF_RenderGlyph_Shaded(font, gUNICODEChr, forecol, backcol);
-    // SDL_Surface *surface = TTF_RenderGlyph_Blended(font, gUNICODEChr, forecol);
-    // SDL_Surface *surface = TTF_RenderGlyph_LCD(font, gUNICODEChr, forecol, backcol);
+    SDL_Surface *surface = TTF_RenderUTF8_Blended(font, displayText.c_str(), forecol);
     if (surface == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't TTF_Render***: %s\n",SDL_GetError());
         TTF_CloseFont(font);
@@ -92,9 +93,7 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return -1;
     }
-    SDL_Log("Hello SDL! surface format: %d\n", surface->format->format);
-    SDL_Log("Hello SDL! surface w: %d\n", surface->w);
-    SDL_Log("Hello SDL! surface h: %d\n", surface->h);
+
     SDL_Texture *texture = SDL_CreateTextureFromSurface(render, surface);
     if (texture == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't SDL_CreateTextureFromSurface: %s\n",SDL_GetError());
@@ -108,17 +107,12 @@ int main(int argc, char *argv[])
     }
     int tigerHeadx = 0;
     int tigerHeady = 0;
-    int zhongWidth = surface->w;
-    int zhongHigh = surface->h;
-    SDL_Rect helloRect = {tigerHeadx, tigerHeady, zhongWidth, zhongHigh};
+    int textsWidth = surface->w;
+    int textsHigh = surface->h;
     SDL_FreeSurface(surface);
 
-    int partTextureW = 200;   
-    int partTextureH = 300;  
-    SDL_Texture *partTexture = SDL_CreateTexture(render, SDL_PIXELFORMAT_RGBA8888, 
-                                                 SDL_TEXTUREACCESS_TARGET, partTextureW, partTextureH);
-
     int keyboardEvent = 0;
+    std::string tempInput;
     bool quit = false;
     SDL_Event event;
     while (!quit) {
@@ -138,45 +132,44 @@ int main(int argc, char *argv[])
         if (keyStatus[SDL_SCANCODE_UP] == SDL_PRESSED) {
             tigerHeady -= 3;
         }
-        if (keyStatus[SDL_SCANCODE_W] == SDL_PRESSED) {
-            zhongHigh += 3;
-        }
-        if (keyStatus[SDL_SCANCODE_S] == SDL_PRESSED) {
-            zhongHigh -= 3;
-        }
-        if (keyStatus[SDL_SCANCODE_A] == SDL_PRESSED) {
-            zhongWidth -= 3;
-        }
-        if (keyStatus[SDL_SCANCODE_D] == SDL_PRESSED) {
-            zhongWidth += 3;
-        }
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 quit = 1;
             }
+            if (event.type == SDL_TEXTEDITING) {
+                std::cout << event.edit.text << std::endl;
+                tempInput = event.edit.text;
+            }
+            if (event.type == SDL_TEXTINPUT) {
+                tempInput = event.text.text;
+            }
+        }
+        if (tempInput != displayText) {
+            displayText = tempInput;
+            SDL_Surface *surface = TTF_RenderUTF8_Blended(font, displayText.c_str(), forecol);
+            if (surface != nullptr) {
+                textsWidth = surface->w;
+                textsHigh = surface->h;
+                SDL_DestroyTexture(texture);
+                texture = SDL_CreateTextureFromSurface(render, surface);
+                if (texture == nullptr) {
+                    SDL_FreeSurface(surface);
+                    continue;
+                }
+                SDL_FreeSurface(surface);
+            }
         }
         /* do your job */
         // 清屏
-        SDL_SetRenderDrawColor(render, 65, 167, 225, 0xFF );
+        SDL_SetRenderDrawColor(render, 65, 167, 225, 0xFF);
         SDL_RenderClear(render);
         // 绘制
-        // 在特定的texture上渲染
-        SDL_SetRenderTarget(render, partTexture);    // 渲染到指定texture，下面的操作都会转为对texture的操作
-        SDL_SetRenderDrawColor(render, 65, 100, 225, 0xFF ); // A 设置为0完全透明背景 则 RGB 无效 
-        SDL_RenderClear(render);
         // 绘画 点/线/面，copy texture 等
-        SDL_Rect partZhongRect = {tigerHeadx, tigerHeady, zhongWidth, zhongHigh};
-        SDL_Point zhongPoint = {0, 0};
-        SDL_RenderCopyEx(render, texture, nullptr, &partZhongRect, 0, &zhongPoint, SDL_FLIP_NONE);
-        SDL_SetRenderTarget(render, NULL);    // 切回，渲染到窗口
-
-        helloRect.x = 200;
-        helloRect.y = 200;
-        helloRect.w = partTextureW;
-        helloRect.h = partTextureH;
-        SDL_Point point = {0, 0};
-        // 将已经渲染好的texture，渲染到窗口
-        SDL_RenderCopyEx(render, partTexture, nullptr, &helloRect, 0, &point, SDL_FLIP_NONE);
+        SDL_Rect textRenderRect = {tigerHeadx, tigerHeady, textsWidth, textsHigh};
+        SDL_SetTextInputRect(&textRenderRect); // 将输入法UI设置到，指定的矩形附近
+        SDL_SetRenderDrawColor(render, 65, 57, 225, 0x00); // 设置输入框的颜色
+        SDL_RenderFillRect(render, &textRenderRect);
+        SDL_RenderCopyEx(render, texture, nullptr, &textRenderRect, 0, nullptr, SDL_FLIP_NONE);
 
         // 显示
         SDL_RenderPresent(render);
@@ -193,7 +186,6 @@ int main(int argc, char *argv[])
     }
 
     // 销毁 texture
-    SDL_DestroyTexture(partTexture);
     SDL_DestroyTexture(texture);
     // 关闭 font
     TTF_CloseFont(font);
