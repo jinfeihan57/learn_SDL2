@@ -46,3 +46,6 @@ SDL_TTF_Glyph
 
 ## 局部渲染
 SDL_part_texture_render
+
+## 输入法
+SDL_IME
