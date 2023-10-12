@@ -1,0 +1,82 @@
+# GNU Makefile for Mac OS X (Darwin).
+
+INCLUDES = -Ilibmodplug
+
+CPPFLAGS = -DMODPLUG_BUILD -DSYM_VISIBILITY
+#CPPFLAGS+= -DWORDS_BIGENDIAN=1
+CPPFLAGS+= -DNDEBUG
+CPPFLAGS+= -DHAVE_STDINT_H -DHAVE_STRINGS_H -DHAVE_SINF
+CPPFLAGS+= -DNO_CXX_EXPORTS
+#CPPFLAGS+= -DMIDIFMT_SUPPORT
+#CPPFLAGS+= -DWAV_SUPPORT
+CPPFLAGS+= -DMMCMP_SUPPORT
+
+CXX=g++
+ifneq ($(CROSS),)
+CXX=$(CROSS)-g++
+endif
+LD = $(CXX)
+
+CXXFLAGS= -Wall -O2 -fno-exceptions -Wall -ffast-math -fno-common -fvisibility=hidden
+LDFLAGS = -dynamiclib -Wl,-undefined,error -Wl,-single_module
+LDFLAGS+= -Wl,-install_name,"/usr/local/lib/$(DYLIB)" -Wl,-compatibility_version,2.0 -Wl,-current_version,2.0
+LDLIBS  =
+#CXXFLAGS+=-mmacosx-version-min=10.6
+#LDFLAGS+= -mmacosx-version-min=10.6
+
+LIBNAME = libmodplug
+DYLIB   = $(LIBNAME).1.dylib
+
+COMPILE=$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDES)
+
+OBJ = sndmix.o   \
+      sndfile.o  \
+      snd_fx.o   \
+      snd_flt.o  \
+      snd_dsp.o  \
+      fastmix.o  \
+      mmcmp.o    \
+      load_xm.o  \
+      load_umx.o \
+      load_ult.o \
+      load_stm.o \
+      load_s3m.o \
+      load_ptm.o \
+      load_okt.o \
+      load_mtm.o \
+      load_mod.o \
+      load_med.o \
+      load_mdl.o \
+      load_it.o  \
+      load_far.o \
+      load_dsm.o \
+      load_dmf.o \
+      load_dbm.o \
+      load_ams.o \
+      load_amf.o \
+      load_669.o \
+      load_mt2.o \
+      load_gdm.o \
+      load_psm.o \
+      load_abc.o \
+      load_mid.o \
+      load_pat.o \
+      load_wav.o \
+      modplug.o
+
+all: $(DYLIB)
+
+.PHONY: clean distclean
+
+$(DYLIB): $(OBJ)
+	$(RM) *.dylib
+	$(LD) -o $@ $(LDFLAGS) $(OBJ) $(LDLIBS)
+	ln -s $(DYLIB) $(LIBNAME).dylib
+
+.cpp.o:
+	$(COMPILE) -o $@ -c $<
+
+distclean: clean
+	$(RM) *.dylib
+clean:
+	$(RM) *.o

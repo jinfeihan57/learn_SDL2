@@ -1,0 +1,76 @@
+# Makefile for OS/2 using Open Watcom
+#
+# wmake -f Makefile.os2
+# - builds modplug.dll and its import lib (modplug.lib)
+
+CPPFLAGS = -DMODPLUG_BUILD
+CPPFLAGS+= -DNDEBUG -DHAVE_STDINT_H -DHAVE_STRINGS_H
+CPPFLAGS+= -DNO_CXX_EXPORTS
+#CPPFLAGS+= -DMIDIFMT_SUPPORT
+#CPPFLAGS+= -DWAV_SUPPORT
+CPPFLAGS+= -DMMCMP_SUPPORT
+INCLUDES = -Ilibmodplug
+
+CXXFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w3 -ei -j -zp8
+# -5s (or -5r) : Pentium stack (or register) calling conventions
+CXXFLAGS+= -5s
+CXXFLAGS+= -bd
+
+LIBNAME = modplug
+DLLNAME = $(LIBNAME).dll
+IMPNAME = $(LIBNAME).lib
+EXPNAME = $(LIBNAME).exp
+
+COMPILE=wpp386 $(CXXFLAGS) $(CPPFLAGS) $(INCLUDES)
+
+OBJ = sndmix.obj   &
+      sndfile.obj  &
+      snd_fx.obj   &
+      snd_flt.obj  &
+      snd_dsp.obj  &
+      fastmix.obj  &
+      mmcmp.obj    &
+      load_xm.obj  &
+      load_umx.obj &
+      load_ult.obj &
+      load_stm.obj &
+      load_s3m.obj &
+      load_ptm.obj &
+      load_okt.obj &
+      load_mtm.obj &
+      load_mod.obj &
+      load_med.obj &
+      load_mdl.obj &
+      load_it.obj  &
+      load_far.obj &
+      load_dsm.obj &
+      load_dmf.obj &
+      load_dbm.obj &
+      load_ams.obj &
+      load_amf.obj &
+      load_669.obj &
+      load_mt2.obj &
+      load_gdm.obj &
+      load_psm.obj &
+      load_abc.obj &
+      load_mid.obj &
+      load_pat.obj &
+      load_wav.obj &
+      modplug.obj
+
+all: $(DLLNAME)
+
+.SUFFIXES:
+.SUFFIXES: .obj .cpp
+
+$(DLLNAME): $(OBJ)
+	wlink NAM $@ OP q SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE FIL {$(OBJ)} OPTION IMPF=$(EXPNAME)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(IMPNAME) +$(DLLNAME)
+
+.cpp.obj:
+	$(COMPILE) -fo=$^@ $<
+
+distclean: clean .symbolic
+	rm -f *.err $(DLLNAME) $(IMPNAME) $(EXPNAME)
+clean: .symbolic
+	rm -f *.obj

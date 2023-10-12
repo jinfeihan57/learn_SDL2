@@ -38,11 +38,13 @@ else()
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rd/SDL_image-release-2.6.3)
     set(SDL2TTF_VENDORED TRUE)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rd/SDL_ttf-release-2.20.2)
-    target_link_libraries(main PUBLIC SDL2::SDL2-static SDL2::SDL2main SDL2_image SDL2_ttf)
+    set(SDL2MIXER_VENDORED ON)
+    set(SDL2MIXER_INSTALL OFF)
+    set(SDL2MIXER_DEPS_SHARED ON)
+    set(SDL2MIXER_MOD ON)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rd/SDL_mixer-release-2.6.3)
+    target_link_libraries(main PUBLIC SDL2::SDL2-static SDL2::SDL2main SDL2_image SDL2_ttf SDL2_mixer)
 endif()
-
-
-
 
 # 设置 编译测试选项
 option(BUILD_TEST "Builds test!!!" OFF)

@@ -1,0 +1,78 @@
+# GNU Makefile for Windows using MinGW or MinGW-w64
+
+INCLUDES = -Ilibmodplug
+
+CPPFLAGS = -DMODPLUG_BUILD -DDLL_EXPORT
+CPPFLAGS+= -DNDEBUG
+CPPFLAGS+= -DHAVE_STDINT_H -DHAVE_STRINGS_H
+CPPFLAGS+= -DNO_CXX_EXPORTS
+#CPPFLAGS+= -DMIDIFMT_SUPPORT
+#CPPFLAGS+= -DWAV_SUPPORT
+CPPFLAGS+= -DMMCMP_SUPPORT
+
+ifeq ($(CROSS),)
+CXX=g++
+else
+CXX=$(CROSS)-g++
+endif
+LD = $(CXX)
+
+CXXFLAGS= -Wall -O2 -fno-exceptions -Wall -ffast-math -fno-common
+LDFLAGS = -shared -static-libgcc -static-libstdc++ -Wl,--no-undefined -Wl,--enable-auto-image-base -Wl,--out-implib,$(IMPNAME)
+LDLIBS  =
+
+LIBNAME = libmodplug-1
+DLLNAME = $(LIBNAME).dll
+IMPNAME = $(DLLNAME).a
+
+COMPILE=$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDES)
+
+OBJ = sndmix.o   \
+      sndfile.o  \
+      snd_fx.o   \
+      snd_flt.o  \
+      snd_dsp.o  \
+      fastmix.o  \
+      mmcmp.o    \
+      load_xm.o  \
+      load_umx.o \
+      load_ult.o \
+      load_stm.o \
+      load_s3m.o \
+      load_ptm.o \
+      load_okt.o \
+      load_mtm.o \
+      load_mod.o \
+      load_med.o \
+      load_mdl.o \
+      load_it.o  \
+      load_far.o \
+      load_dsm.o \
+      load_dmf.o \
+      load_dbm.o \
+      load_ams.o \
+      load_amf.o \
+      load_669.o \
+      load_mt2.o \
+      load_gdm.o \
+      load_psm.o \
+      load_abc.o \
+      load_mid.o \
+      load_pat.o \
+      load_wav.o \
+      modplug.o
+
+all: $(DLLNAME)
+
+.PHONY: clean distclean
+
+$(DLLNAME): $(OBJ)
+	$(LD) -o $@ $(LDFLAGS) $(OBJ) $(LDLIBS)
+
+.cpp.o:
+	$(COMPILE) -o $@ -c $<
+
+distclean: clean
+	$(RM) $(DLLNAME) $(IMPNAME)
+clean:
+	$(RM) *.o
