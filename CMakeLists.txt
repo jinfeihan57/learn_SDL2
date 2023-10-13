@@ -40,8 +40,8 @@ else()
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rd/SDL_ttf-release-2.20.2)
     set(SDL2MIXER_VENDORED ON)
     set(SDL2MIXER_INSTALL OFF)
-    set(SDL2MIXER_DEPS_SHARED ON)
-    set(SDL2MIXER_MOD ON)
+    set(SDL2MIXER_DEPS_SHARED OFF) #SDL2MIXER_DEPS_SHARED 关闭动态加载能力，采用链接的方式依赖库
+    set(SDL2MIXER_MOD OFF) # 关闭SDL2MIXER_DEPS_SHARED导致MOD能力编译失败，考虑到MOD能力使用较少，因此也关闭
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rd/SDL_mixer-release-2.6.3)
     target_link_libraries(main PUBLIC SDL2::SDL2-static SDL2::SDL2main SDL2_image SDL2_ttf SDL2_mixer)
 endif()
