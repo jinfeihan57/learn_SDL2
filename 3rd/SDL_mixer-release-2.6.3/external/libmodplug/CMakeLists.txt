@@ -162,6 +162,8 @@ if (BUILD_SHARED_LIBS)
   if(MATH_LIB)
     target_link_libraries(modplug m)
   endif()
+else()
+  target_compile_definitions(modplug PUBLIC MODPLUG_STATIC)
 endif()
 
 # install the library:

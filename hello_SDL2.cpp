@@ -6,6 +6,7 @@
 
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include "SDL_mixer.h"
 
 constexpr int gWINDOW_WEIGHT = 1152;
 constexpr int gWINDOW_HEIGHT = 896;
@@ -14,27 +15,58 @@ constexpr int gFPS = 60;
 constexpr Uint32 gFPS_TIME = 1000 / gFPS;
 
 constexpr int gDEFAULT_PTSIZE = 70;
-const std::string gSTRING = {"UTF8: 中文演示"};  // UTF8 编码
+const std::string gSTRING = {"正在播放: "};  // UTF8 编码
 
 int main(int argc, char *argv[])
 {
     int ret = 0;
     if ( ! argv[1] ) {
-        std::cout << "Usage: ./main.exe *.ttf (中文字库)" << std::endl;
+        std::cout << "Usage: ./main.exe *.ttf(中文字库) *.mp3(音频文件) *.wav(音效文件)" << std::endl;
         return -1;
     }
     // 初始化SDL
-    ret = SDL_Init(SDL_INIT_VIDEO);
+    ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     if (ret != 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s\n",SDL_GetError());
         return -1;
     }
     if (TTF_Init() < 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize TTF: %s\n",SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize TTF: %s\n",TTF_GetError());
         SDL_Quit();
-        return(2);
+        return -1;
     }
-    SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1"); // 显示输入法UI
+    ret = Mix_Init(MIX_INIT_MP3);
+    if ( ret != MIX_INIT_MP3) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize TTF: %s\n",Mix_GetError());
+        TTF_Quit();
+        SDL_Quit();
+        return -1;
+    }
+    ret = Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 4096);
+    if (ret != 0) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize TTF: %s\n",Mix_GetError());
+        Mix_Quit();
+        TTF_Quit();
+        SDL_Quit();
+        return -1;
+
+    }
+    Mix_Music *music = Mix_LoadMUS(argv[2]);
+    if (music == nullptr) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize TTF: %s\n",Mix_GetError());
+        Mix_Quit();
+        TTF_Quit();
+        SDL_Quit();
+        return -1;
+    }
+    Mix_Chunk *scratch = Mix_LoadWAV(argv[3]);
+    if (scratch == nullptr) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize TTF: %s\n",Mix_GetError());
+        Mix_Quit();
+        TTF_Quit();
+        SDL_Quit();
+        return -1;
+    }
     // 创建一个 SDL 窗口
     SDL_Window *screen = SDL_CreateWindow("Hello SDL",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gWINDOW_WEIGHT, gWINDOW_HEIGHT, 0);
@@ -78,11 +110,9 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return -1;
     }
-    std::string displayText = gSTRING;
+    std::string displayText = gSTRING + std::string(argv[2]);
     SDL_Color forecol = {0, 0, 0, 0xff};
     SDL_Color backcol = {0xff, 0xff, 0xff, 0xff};
-    // SDL_Log("Hello SDL! TTF_SetFontSize: %d\n", TTF_SetFontSize(font, 200)); // 在TTF_Render* 字符之前设置才生效，或者每次修改ptsize都重新执行 TTF_Render*
-    // TTF_SetFontStyle(font, TTF_STYLE_BOLD | TTF_STYLE_ITALIC | TTF_STYLE_UNDERLINE | TTF_STYLE_STRIKETHROUGH);
     SDL_Surface *surface = TTF_RenderUTF8_Blended(font, displayText.c_str(), forecol);
     if (surface == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't TTF_Render***: %s\n",SDL_GetError());
@@ -110,9 +140,8 @@ int main(int argc, char *argv[])
     int textsWidth = surface->w;
     int textsHigh = surface->h;
     SDL_FreeSurface(surface);
-
+    int volume = MIX_MAX_VOLUME;
     int keyboardEvent = 0;
-    std::string tempInput;
     bool quit = false;
     SDL_Event event;
     while (!quit) {
@@ -132,31 +161,47 @@ int main(int argc, char *argv[])
         if (keyStatus[SDL_SCANCODE_UP] == SDL_PRESSED) {
             tigerHeady -= 3;
         }
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                quit = 1;
-            }
-            if (event.type == SDL_TEXTEDITING) {
-                std::cout << event.edit.text << std::endl;
-                tempInput = event.edit.text;
-            }
-            if (event.type == SDL_TEXTINPUT) {
-                tempInput = event.text.text;
-            }
+        SDL_PollEvent(&event);
+        if (event.type == SDL_QUIT) {
+            quit = 1;
+            continue;
         }
-        if (tempInput != displayText) {
-            displayText = tempInput;
-            SDL_Surface *surface = TTF_RenderUTF8_Blended(font, displayText.c_str(), forecol);
-            if (surface != nullptr) {
-                textsWidth = surface->w;
-                textsHigh = surface->h;
-                SDL_DestroyTexture(texture);
-                texture = SDL_CreateTextureFromSurface(render, surface);
-                if (texture == nullptr) {
-                    SDL_FreeSurface(surface);
-                    continue;
+        if (event.type == SDL_KEYDOWN) {
+            switch (event.key.keysym.sym) {
+                case SDLK_a:
+                    Mix_PlayChannel(-1, scratch, 0);
+                    break;
+                case SDLK_p:
+                    if ( Mix_PlayingMusic() == 0 ) {        // 判断是否正在播放
+                        //Play the music
+                        // Mix_PlayMusic(music, -1);        // 从头播放音乐
+                        Mix_FadeInMusic(music, -1, 2000);   // 渐入音乐
+                    } else if (Mix_PausedMusic() == 1) {    // 判断是否暂停
+                        Mix_ResumeMusic();                  // 继续播放
+                    }
+                    break;
+                case SDLK_SPACE:
+                    Mix_PauseMusic();                       // 暂停播放
+                    break;
+                case SDLK_s:
+                    Mix_HaltMusic();                    // 停止播放
+                    break;
+                case SDLK_d: {
+                    volume -= 20;
+                    volume = volume < 0 ? 0 : volume;
+                    int a = Mix_VolumeMusic(volume);
+                    std::cout << "volume: " << a << std::endl;
+                    break;
                 }
-                SDL_FreeSurface(surface);
+                case SDLK_u: {
+                    volume += 20;
+                    volume = volume > MIX_MAX_VOLUME ? MIX_MAX_VOLUME : volume;
+                    int a = Mix_VolumeMusic(volume);
+                    std::cout << "volume: " << a << std::endl;
+                    break;
+                }
+                default:
+                    break;
             }
         }
         /* do your job */
@@ -184,7 +229,8 @@ int main(int argc, char *argv[])
         // 修改应用标题
         SDL_SetWindowTitle(screen, (std::string("fps: ") + std::to_string(fps)).c_str());
     }
-
+    Mix_FadeOutMusic(500); // 音乐效果渐渐消失
+    SDL_Delay(500);
     // 销毁 texture
     SDL_DestroyTexture(texture);
     // 关闭 font
@@ -193,6 +239,10 @@ int main(int argc, char *argv[])
     SDL_DestroyRenderer(render);
     // 销毁 SDL 窗口
     SDL_DestroyWindow(screen);
+    Mix_CloseAudio();
+    Mix_FreeChunk(scratch);
+    Mix_FreeMusic(music);
+    Mix_Quit();
     // TTF 退出
     TTF_Quit();
     // SDL 退出
