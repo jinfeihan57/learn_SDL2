@@ -49,3 +49,6 @@ SDL_part_texture_render
 
 ## 输入法
 SDL_IME
+
+## 音频播放
+SDL_Mixer
