@@ -24,7 +24,7 @@ hide_terminal
 ## SDL绘画
 draw_function
 
-## 图片显示
+## 图片显示 https://wiki.libsdl.org/SDL2_image/FrontPage
 SDL_IMG
 
 SDL_IMG_webp
@@ -35,7 +35,7 @@ SDL_Animation_gif
 
 SDL_Animation_sprite
 
-## 文字显示
+## 文字显示 https://wiki.libsdl.org/SDL2_ttf/FrontPage
 SDL_TTF_Latin1
 
 SDL_TTF_utf8
@@ -50,5 +50,5 @@ SDL_part_texture_render
 ## 输入法
 SDL_IME
 
-## 音频播放
+## 音频播放 https://wiki.libsdl.org/SDL2_mixer/
 SDL_Mixer
