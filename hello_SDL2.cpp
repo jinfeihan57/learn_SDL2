@@ -15,7 +15,7 @@ constexpr Uint32 gFPS_TIME = 1000 / gFPS;
 
 constexpr int gDEFAULT_PTSIZE = 70;
 const std::string gSTRING = {"UTF8: 中文演示"};  // UTF8 编码
-const Uint16 gUNICODEChr = 0x4E2D;
+const Uint32 gUNICODEChr = 0x00004E2D;
 int main(int argc, char *argv[])
 {
     int ret = 0;
@@ -79,10 +79,11 @@ int main(int argc, char *argv[])
     SDL_Color backcol = {0xff, 0xff, 0xff, 0xff};
     // SDL_Log("Hello SDL! TTF_SetFontSize: %d\n", TTF_SetFontSize(font, 200)); // 在TTF_Render* 字符之前设置才生效，或者每次修改ptsize都重新执行 TTF_Render*
     // TTF_SetFontStyle(font, TTF_STYLE_BOLD | TTF_STYLE_ITALIC | TTF_STYLE_UNDERLINE | TTF_STYLE_STRIKETHROUGH);
-    SDL_Surface *surface = TTF_RenderGlyph_Solid(font, gUNICODEChr, forecol);
-    // SDL_Surface *surface = TTF_RenderGlyph_Shaded(font, gUNICODEChr, forecol, backcol);
-    // SDL_Surface *surface = TTF_RenderGlyph_Blended(font, gUNICODEChr, forecol);
-    // SDL_Surface *surface = TTF_RenderGlyph_LCD(font, gUNICODEChr, forecol, backcol);
+    SDL_Surface *surface = TTF_RenderGlyph32_Solid(font, gUNICODEChr, forecol);
+    // SDL_Surface *surface = TTF_RenderGlyph32_Blended(font, gUNICODEChr, forecol);
+    // SDL_Surface *surface = TTF_RenderGlyph32_Shaded(font, gUNICODEChr, forecol, backcol);
+    // SDL_Surface *surface = TTF_RenderGlyph32_Blended(font, gUNICODEChr, forecol);
+    // SDL_Surface *surface = TTF_RenderGlyph32_LCD(font, gUNICODEChr, forecol, backcol);
     if (surface == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't TTF_Render***: %s\n",SDL_GetError());
         TTF_CloseFont(font);
@@ -159,8 +160,7 @@ int main(int argc, char *argv[])
         helloRect.y = tigerHeady;
         helloRect.w = helloWidth;
         helloRect.h = helloHigh;
-        SDL_Point point = {0, 0};
-        SDL_RenderCopyEx(render, texture, nullptr, &helloRect, 30, &point, SDL_FLIP_NONE);
+        SDL_RenderCopyEx(render, texture, nullptr, &helloRect, 0, nullptr, SDL_FLIP_NONE);
 
         // 显示
         SDL_RenderPresent(render);
