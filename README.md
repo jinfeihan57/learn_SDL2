@@ -52,3 +52,6 @@ SDL_IME
 
 ## 音频播放 https://wiki.libsdl.org/SDL2_mixer/
 SDL_Mixer
+
+## 渲染 pixel map
+SDL_pixels_Render
