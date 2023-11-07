@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     int partTextureH = gWINDOW_HEIGHT;
     SDL_Texture *partTexture = SDL_CreateTexture(render, SDL_PIXELFORMAT_ARGB8888, 
                                                  SDL_TEXTUREACCESS_STREAMING, partTextureW, partTextureH);
-    int32_t *pixels = new int32_t[partTextureW * partTextureH];
+    int32_t *pixels = nullptr;
     int clickX = 0;
     int clickY = 0;
     int keyboardEvent = 0;
@@ -107,7 +107,6 @@ int main(int argc, char *argv[])
         // 修改应用标题
         SDL_SetWindowTitle(screen, (std::string("fps: ") + std::to_string(fps)).c_str());
     }
-    delete [] pixels;
     // 销毁 texture
     SDL_DestroyTexture(partTexture);
     // 销毁 render
