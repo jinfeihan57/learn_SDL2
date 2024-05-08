@@ -50,6 +50,9 @@ SDL_part_texture_render
 ## 输入法
 SDL_IME
 
+## 访问量
+
+![](http://profile-counter.glitch.me/evilbutcher/count.svg)
 ## 音频播放 https://wiki.libsdl.org/SDL2_mixer/
 SDL_Mixer
 
